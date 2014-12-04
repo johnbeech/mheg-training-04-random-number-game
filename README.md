@@ -8,7 +8,7 @@ Purpose
 This project demonstrates:
 * Resident Programs to generate a random number
 * Header files and macros to organise reusable code
-* User input using a text input
+* Numeric user input using a text input
 
 To run
 ------
