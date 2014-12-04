@@ -1,0 +1,41 @@
+{:Scene("/main.mheg+" 0)
+
+	:Items (
+	
+		// Variables
+		{:OStringVar strTitle :OrigValue "Unusued Title" }
+		
+		// Assets
+		{:EntryField txtTitle
+			:OrigContent "Default Title"
+			:OrigBoxSize 190 45
+			:OrigPosition 50 50
+			:HJustification centre
+			:VJustification centre
+			:InputType numeric
+		}
+		
+		// Links
+		{:Link linkStartup
+			:EventSource 		linkStartup
+			:EventType 			IsRunning
+			:InitiallyActive	True
+			:LinkEffect (
+				// Change the title
+				strTitle.SetVariable("Hello world")
+				txtTitle.SetData(:IndirectRef strTitle)
+			)
+		}
+		
+		{:Link linkQuit
+			:EventSource	0
+			:EventType		UserInput
+			:EventData		16
+			:LinkEffect (
+				:Quit (('a' 0))
+			)
+		}
+	)
+	:InputEventReg 4
+	:SceneCS 720 576
+}
