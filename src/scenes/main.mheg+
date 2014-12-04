@@ -1,0 +1,20 @@
+// Used by: ../a
+
+import (../headers/main.h.mheg+)
+import (../headers/random_number_game.h.mheg+)
+
+{:Scene("/scenes/main.mheg+" 0)
+
+	:Items (
+	
+		insertMacro(mainSceneVariables)
+		insertMacro(mainSceneAssets)
+		insertMacro(mainSceneLinks)
+		
+		insertMacro(randomNumberGameVariables)
+		insertMacro(randomNumberGameAssets)
+		insertMacro(randomNumberGameLinks)
+	)
+	:InputEventReg 4
+	:SceneCS 720 576
+}

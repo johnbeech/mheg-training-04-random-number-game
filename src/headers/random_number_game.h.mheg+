@@ -1,0 +1,183 @@
+// Used by: ../a
+// Used by: ../scenes/main.mheg+
+
+// Random Number Game constants - defined outside of a defMacro, included on import
+{:OStringConst constChooseAnOption :ConstValue "Choose an option" }
+{:OStringConst constGameTitle :ConstValue "Random Number Game" }
+{:OStringConst constInstructionBeginGame :ConstValue "Press Blue to begin" }
+{:OStringConst constInstructionGuessNumber :ConstValue "Guess a 3 digit number, between 0 and 999" }
+{:OStringConst constTitleGameOver :ConstValue "Game Over" }
+{:OStringConst constInstructionGameOver :ConstValue "You ran out of time, better luck next time! Press Blue to restart." }
+
+defMacro randomNumberGameVariables
+{
+	// Resident Program for Random Number generator
+	{:ResidentPrg mathRandom :InitiallyActive false :name "Rnd" }
+	{:BooleanVar residentPrgResult :OrigValue false }
+	
+	// Timer for game countdown
+	{:Timer gameTimer }
+	
+	// Integers for game counters
+	{:IntegerVar intRandomNumber :OrigValue 0 }
+	{:IntegerVar intGuessResult :OrigValue 0 }
+	{:IntegerVar intGuessCount :OrigValue 0 }
+	{:IntegerVar intTimeRemaining :OrigValue 0 }
+	
+	// Display strings for integers
+	{:OStringVar stringGuessResult :OrigValue "" }
+	{:OStringVar stringGuessCount :OrigValue "" }
+	{:OStringVar stringTimeRemaining :OrigValue "" }
+	
+} endMacro
+
+defMacro randomNumberGameAssets
+{
+	// Game specific assets
+	{:Text txtOptions
+		:OrigContent ""
+		:OrigBoxSize 250 140
+		:OrigPosition 50 145
+		:HJustification centre
+		:VJustification start
+		:TextWrapping true
+	}
+	
+	{:Text txtTimeRemaining
+		:OrigContent ""
+		:OrigBoxSize 250 95
+		:OrigPosition 50 245
+		:HJustification centre
+		:VJustification start
+		:TextWrapping true
+	}
+	
+	// Note: External dependency on txtTitle - defined in main.h.mheg+
+	
+} endMacro
+
+defMacro randomNumberGameLinks
+{
+	{:Link linkBlueKey
+		:EventSource	0
+		:EventType		UserInput
+		:EventData		KeyBlue
+		:LinkEffect (
+			linkResetGame.Activate()
+			linkBeginGame.Activate()
+		)
+	}
+	
+	{:Link linkResetGame
+		:EventSource		linkResetGame
+		:EventType			IsRunning
+		:InitiallyActive	False
+		:LinkEffect (
+			linkResetGame.Deactivate()
+			
+			// Change the titles
+			txtTitle.SetData(constGameTitle)
+			txtOptions.SetData(constInstructionBeginGame)
+		)
+	}
+	
+	{:Link linkBeginGame
+		:EventSource		linkBeginGame
+		:EventType			IsRunning
+		:InitiallyActive	False
+		:LinkEffect (
+			linkBeginGame.Deactivate()
+		
+			txtOptions.SetData(constInstructionGuessNumber)
+			txtTitle.SetData("")
+			txtTitle.SetInteractionStatus(true)
+			
+			intTimeRemaining.SetVariable(20)
+			stringTimeRemaining.SetVariable(:IndirectRef intTimeRemaining)
+			stringTimeRemaining.Append(" seconds left")
+			txtTimeRemaining.SetData(:IndirectRef stringTimeRemaining)
+			:SetTimer(0 gameTimer 1000)
+			
+			:If (intRandomNumber == 0) {
+				mathRandom.Call(residentPrgResult 999 :GInteger :IndirectRef intRandomNumber)
+			}
+		)
+	}
+	{:Link linkTextEntry
+		:EventSource 	txtTitle
+		:EventType		InteractionCompleted
+		:LinkEffect (
+			:If(intTimeRemaining > 0)
+			{
+				intGuessCount.Add(1)
+				:GetTextData(txtTitle stringGuessResult)
+				:If(stringGuessResult != "")
+				{
+					intGuessResult.SetVariable(:IndirectRef stringGuessResult)
+				}
+				:Else
+				{
+					intGuessResult.SetVariable(0)
+				}
+				stringGuessCount.SetVariable(:IndirectRef intGuessCount)
+				
+				:If(intGuessResult == :IndirectRef intRandomNumber)
+				{
+					stringGuessResult.Append(" was correct! Took ")
+					stringGuessResult.Append(:IndirectRef stringGuessCount)
+					stringGuessResult.Append(" attempts.")
+					intRandomNumber.SetVariable(0)
+					intGuessCount.SetVariable(0)
+					txtTitle.SetData(constChooseAnOption)
+				}
+				:Else
+				{
+					:If(intGuessResult < :IndirectRef intRandomNumber) 
+					{
+						stringGuessResult.Append(" was too low! Attempt ")
+						stringGuessResult.Append(:IndirectRef stringGuessCount)
+						txtTitle.SetData("")
+						txtTitle.SetInteractionStatus(true)
+					}
+					:Else
+					{
+						stringGuessResult.Append(" was too high! Attempt ")
+						stringGuessResult.Append(:IndirectRef stringGuessCount)
+						txtTitle.SetData("")
+						txtTitle.SetInteractionStatus(true)
+					}
+				}
+				txtOptions.SetData(:IndirectRef stringGuessResult)
+			}
+		)
+	}
+	
+	{:Link linkGameTimerEvent
+		:EventSource 	0
+		:EventType		TimerFired
+		:EventData		gameTimer
+		:LinkEffect (
+			:If (intRandomNumber != 0)
+			{
+				:If (intTimeRemaining > 0)
+				{
+					intTimeRemaining.Subtract(1)
+					stringTimeRemaining.SetVariable(:IndirectRef intTimeRemaining)
+					stringTimeRemaining.Append(" seconds left")
+					txtTimeRemaining.SetData(:IndirectRef stringTimeRemaining)
+					:SetTimer(0 gameTimer 1000)
+				}
+				:Else
+				{
+					txtTitle.SetInteractionStatus(false)
+					txtTitle.SetData(constGameTitle)
+					txtTimeRemaining.SetData(constTitleGameOver)
+					txtOptions.SetData(constInstructionGameOver)
+					intRandomNumber.SetVariable(0)
+					intGuessCount.SetVariable(0)
+				}
+			}
+		)
+	}
+	
+} endMacro

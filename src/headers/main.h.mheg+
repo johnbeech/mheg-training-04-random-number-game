@@ -1,0 +1,44 @@
+// Used by: ../a
+// Used by: ../scenes/main.mheg+
+
+defMacro mainSceneVariables
+{
+
+} endMacro
+
+defMacro mainSceneAssets
+{
+	// Assets
+	{:EntryField txtTitle
+		:OrigContent "Loading..."
+		:OrigBoxSize 250 45
+		:OrigPosition 50 50
+		:HJustification centre
+		:VJustification centre
+		:InputType numeric
+	}
+
+} endMacro
+
+defMacro mainSceneLinks
+{
+	{:Link linkStartup
+		:EventSource 		linkStartup
+		:EventType			IsRunning
+		:InitiallyActive	True
+		:LinkEffect (
+			// Hook into random number game
+			linkResetGame.Activate()
+		)
+	}
+	
+	{:Link linkQuit
+		:EventSource	0
+		:EventType		UserInput
+		:EventData		16
+		:LinkEffect (
+			:Quit (('a' 0))
+		)
+	}
+	
+} endMacro

@@ -4,7 +4,7 @@
 			:EventSource 0
 			:EventType IsRunning
 			:LinkEffect (
-				:TransitionTo (("/main.mheg+" 0))
+				:TransitionTo (("/scenes/main.mheg+" 0))
 			)
 		}
 	)
